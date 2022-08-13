@@ -1,7 +1,7 @@
 import styled from '@emotion/styled';
 
 const InputGroup = styled.div`
-  height: 100px;
+  height: 90px;
   font-weight: 700;
   margin-bottom: 16px;
   p {
@@ -21,9 +21,6 @@ const InputGroup = styled.div`
   span {
     color: #D87355;
     font-size: 14px;
-  }
-  &:nth-of-type(2) {
-    margin-bottom: 24px;
   }
 `;
 
