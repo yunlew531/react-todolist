@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
+import Button from 'components/Button';
 import HeaderTitle from 'components/HeaderTitle';
 import TodoInput from './components/TodoInput';
 import TodoList from './components/TodoList';
@@ -15,26 +16,13 @@ const Header = styled.header`
   margin-bottom: 40px;
   .userName {
     font-weight: 700;
+    margin-right: 24px;
   }
   > div {
     &:first-of-type {
       margin-right: auto;
     }
   } 
-`;
-
-const LogoutBtn = styled.button`
-  cursor: pointer;
-  border: none;
-  background: transparent;
-  padding: 0;
-  margin-left: 24px;
-  &:hover {
-    transform: scale(1.05);
-  }
-  &:active {
-    transform: scale(1);
-  }
 `;
 
 const TodoContainer = styled.div`
@@ -72,7 +60,16 @@ const Home: React.FC = () => {
       <Header>
         <HeaderTitle />
         <p className="userName">王小明的代辦</p>
-        <LogoutBtn type="button">登出</LogoutBtn>
+        <Button
+          type="button"
+          p="0"
+          color="#333"
+          bgColor="transparent"
+          border="none"
+          transitionType="scale"
+        >
+          登出
+        </Button>
       </Header>
       <TodoContainer>
         <TodoInput />

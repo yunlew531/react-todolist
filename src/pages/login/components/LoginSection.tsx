@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
 import InputGroup from 'components/InputGroup';
+import Button from 'components/Button';
 
 const Title = styled.h2`
   font-size: 24px;
@@ -14,29 +15,6 @@ const ButtonGroup = styled.div`
   margin-top: 24px;
   > button {
     font-weight: 700;
-  }
-`;
-
-const LoginBtn = styled.button`
-  color: #fff;
-  background-color: #333333;
-  border-radius: 10px;
-  padding: 12px 48px;
-  margin-bottom: 24px;
-  &:hover {
-    filter: brightness(1.2);
-  }
-  &:active {
-    filter: brightness(0.8);
-  }
-`;
-
-const RegisterBtn = styled.button`
-  cursor: pointer;
-  background-color: transparent;
-  border: none;
-  &:hover {
-    text-decoration: underline;
   }
 `;
 
@@ -65,8 +43,18 @@ const LoginSection: React.FC<LoginSectionProps> = ({ setCurrentDisplay }) => {
         </label>
       </InputGroup>
       <ButtonGroup>
-        <LoginBtn type="button">登入</LoginBtn>
-        <RegisterBtn type="button" onClick={() => setCurrentDisplay('register')}>註冊帳號</RegisterBtn>
+        <Button type="button" m="0 0 24px" transitionType="bright">登入</Button>
+        <Button
+          onClick={() => setCurrentDisplay('register')}
+          type="button"
+          p="0"
+          color="#333"
+          bgColor="transparent"
+          border="none"
+          transitionType="scale"
+        >
+          註冊帳號
+        </Button>
       </ButtonGroup>
     </div>
   );

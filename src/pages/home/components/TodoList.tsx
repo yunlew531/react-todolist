@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from '@emotion/styled';
 import Progress from 'pages/home/components/Progress';
+import Button from 'components/Button';
 
 const Wrap = styled.div`
   border-radius: 10px;
@@ -29,7 +30,7 @@ const StatusBtn = styled.button`
   }
 `;
 
-const TodoListContainer = styled.ul`
+const TodoListContainer = styled.div`
   li {
     display: flex;
     align-items: center;
@@ -89,20 +90,6 @@ const TodoListFooter = styled.div`
   padding: 25px 48px 25px 23px;
 `;
 
-const ClearTodosBtn = styled.button`
-  font-size: 14px;
-  color: #9F9A91;
-  background: transparent;
-  cursor: pointer;
-  border: none;
-  &:hover {
-    filter: brightness(0.7);
-  }
-  &:active {
-    filter: brightness(0.9);
-  }
-`;
-
 interface TodosProps {
   todos: Array<ITodo>;
   setTodos: (todos: Array<ITodo>) => void;
@@ -131,7 +118,17 @@ const TodoList: React.FC<TodosProps> = ({ todos, setTodos }) => (
       </ul>
       <TodoListFooter>
         <p>5 個待完成項目</p>
-        <ClearTodosBtn type="button">清除已完成項目</ClearTodosBtn>
+        <Button
+          type="button"
+          fs="14px"
+          p="0"
+          color="#9F9A91"
+          bgColor="transparent"
+          border="none"
+          transitionType="dark"
+        >
+          清除已完成項目
+        </Button>
       </TodoListFooter>
     </TodoListContainer>
   </Wrap>
