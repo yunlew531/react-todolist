@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import styled from '@emotion/styled';
+import HeaderTitle from 'components/HeaderTitle';
 import LoginSection from './components/LoginSection';
 import RegisterSection from './components/RegisterSection';
 
@@ -18,29 +19,12 @@ const ImgContainer = styled.div`
   margin-right: 106px;
 `;
 
-const TitleContainer = styled.div`
-  display: flex;
-  align-items: center;
-  margin-bottom: 20px;
-  > img {
-    margin-right: 5px;
-  }
-  > h1 {
-    font-family: 'Baloo Thambi 2';
-    font-size: 32px;
-    font-weight: 700;
-  }
-`;
-
 const Login: React.FC = () => {
   const [currentDisplay, setCurrentDisplay] = useState<CurrentDisplay>('register');
   return (
     <Wrap>
       <ImgContainer>
-        <TitleContainer>
-          <img src="/images/check.png" alt="check" />
-          <h1>ONLINE TODO LIST</h1>
-        </TitleContainer>
+        <HeaderTitle />
         <img src="/images/todo_img.png" alt="todo" />
       </ImgContainer>
       { currentDisplay === 'login'
