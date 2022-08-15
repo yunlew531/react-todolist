@@ -7,19 +7,23 @@ const Wrap = styled.div`
   background-color: #EFEFEF;
 `;
 
-const ProgressBar = styled.div`
+const ProgressBar = styled.div<{ left: number }>`
   position: absolute;
   top: 0;
-  left: 0;
+  left: ${({ left }) => left}%;
   width: ${(1 / 3) * 100}%;
   height: 100%;
   background-color: #333333;
-  transition: left 0.3s linear;
+  transition: left 0.2s linear;
 `;
 
-const Progress: React.FC = () => (
+interface IProgressProps {
+  progressBarStyle: IProgressBarStyle;
+}
+
+const Progress: React.FC<IProgressProps> = ({ progressBarStyle }) => (
   <Wrap>
-    <ProgressBar />
+    <ProgressBar left={progressBarStyle.left} />
   </Wrap>
 );
 export default Progress;

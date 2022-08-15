@@ -69,9 +69,18 @@ const Home: React.FC = () => {
       finished: true,
     },
   ]);
+
   const [displayTodos, setDisplayTodos] = useState<Array<ITodo>>([]);
   const [displayStatus, setDisplayStatus] = useState<DisplayStatus>('all');
   const [unfinishedTodoNum, setUnfinishedTodoNum] = useState(0);
+  const [progressBarStyle, setProgressBarStyle] = useState({ left: 0 });
+
+  const handleProgressBar = useCallback(() => {
+    const style = { left: 0 };
+    if (displayStatus === 'unfinished') style.left = 33.333;
+    else if (displayStatus === 'finished') style.left = 66.666;
+    return style;
+  }, [displayStatus]);
 
   const calUnfinishedTodo = (todosData: Array<ITodo>) => todosData.reduce((prev, todo) => (
     todo.finished ? prev : prev + 1), 0);
@@ -99,6 +108,10 @@ const Home: React.FC = () => {
     setUnfinishedTodoNum(calUnfinishedTodo(todos));
   }, [todos, todosFilter]);
 
+  useEffect(() => {
+    setProgressBarStyle(handleProgressBar());
+  }, [displayStatus, handleProgressBar]);
+
   return (
     <Wrap>
       <Header>
@@ -122,6 +135,7 @@ const Home: React.FC = () => {
             <TodoList
               todos={displayTodos}
               unfinishedTodoNum={unfinishedTodoNum}
+              progressBarStyle={progressBarStyle}
               setDisplayStatus={setDisplayStatus}
             />
           ) : <TodoEmpty />}

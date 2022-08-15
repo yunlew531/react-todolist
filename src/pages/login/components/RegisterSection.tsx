@@ -18,11 +18,11 @@ const ButtonGroup = styled.div`
   }
 `;
 
-interface RegisterSectionProps {
+interface IRegisterSectionProps {
   setCurrentDisplay: (v: CurrentDisplay) => void;
 }
 
-const RegisterSection: React.FC<RegisterSectionProps> = ({ setCurrentDisplay }) => {
+const RegisterSection: React.FC<IRegisterSectionProps> = ({ setCurrentDisplay }) => {
   const [account, setAccout] = useState();
   return (
     <div>

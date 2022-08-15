@@ -18,11 +18,11 @@ const ButtonGroup = styled.div`
   }
 `;
 
-interface LoginSectionProps {
+interface ILoginSectionProps {
   setCurrentDisplay: (v: CurrentDisplay) => void;
 }
 
-const LoginSection: React.FC<LoginSectionProps> = ({ setCurrentDisplay }) => {
+const LoginSection: React.FC<ILoginSectionProps> = ({ setCurrentDisplay }) => {
   const [account, setAccout] = useState();
 
   return (

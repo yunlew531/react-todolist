@@ -90,20 +90,23 @@ const TodoListFooter = styled.div`
   padding: 25px 48px 25px 23px;
 `;
 
-interface TodosProps {
+interface ITodosProps {
   todos: Array<ITodo>;
+  progressBarStyle: IProgressBarStyle;
   unfinishedTodoNum: number;
   setDisplayStatus: (status: DisplayStatus) => void;
 }
 
-const TodoList: React.FC<TodosProps> = ({ todos, setDisplayStatus, unfinishedTodoNum }) => (
+const TodoList: React.FC<ITodosProps> = ({
+  todos, setDisplayStatus, unfinishedTodoNum, progressBarStyle,
+}) => (
   <Wrap>
     <ButtonGroup>
       <StatusBtn type="button" onClick={() => setDisplayStatus('all')}>全部</StatusBtn>
       <StatusBtn type="button" onClick={() => setDisplayStatus('unfinished')}>待完成</StatusBtn>
       <StatusBtn type="button" onClick={() => setDisplayStatus('finished')}>已完成</StatusBtn>
     </ButtonGroup>
-    <Progress />
+    <Progress progressBarStyle={progressBarStyle} />
     <TodoListContainer>
       <ul>
         {todos.map((todo) => (

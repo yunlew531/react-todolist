@@ -8,3 +8,7 @@ interface ITodo {
   id: string;
   finished: boolean;
 }
+
+interface IProgressBarStyle {
+  left: number;
+}

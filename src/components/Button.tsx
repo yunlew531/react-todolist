@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
 
-interface ButtonProps {
+interface IButtonProps {
   fs?: string;
   color?: string;
   bgColor?: string;
@@ -39,7 +39,7 @@ const scale = `
   }
 `;
 
-const Button = styled.button<ButtonProps>`
+const Button = styled.button<IButtonProps>`
   font-size: ${({ fs }) => fs || '16px'};
   color: ${({ color }) => color || '#fff'};
   background-color: ${({ bgColor }) => bgColor || '#333333'};
