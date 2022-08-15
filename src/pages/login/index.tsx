@@ -19,17 +19,24 @@ const ImgContainer = styled.div`
   margin-right: 106px;
 `;
 
+const FormContainer = styled.div`
+  max-width: 304px;
+  width: 100%;
+`;
+
 const Login: React.FC = () => {
-  const [currentDisplay, setCurrentDisplay] = useState<CurrentDisplay>('register');
+  const [currentDisplay, setCurrentDisplay] = useState<CurrentDisplay>('login');
   return (
     <Wrap>
       <ImgContainer>
         <HeaderTitle />
         <img src="/images/todo_img.png" alt="todo" />
       </ImgContainer>
-      { currentDisplay === 'login'
-        ? <LoginSection setCurrentDisplay={setCurrentDisplay} />
-        : <RegisterSection setCurrentDisplay={setCurrentDisplay} /> }
+      <FormContainer>
+        { currentDisplay === 'login'
+          ? <LoginSection setCurrentDisplay={setCurrentDisplay} />
+          : <RegisterSection setCurrentDisplay={setCurrentDisplay} /> }
+      </FormContainer>
     </Wrap>
   );
 };

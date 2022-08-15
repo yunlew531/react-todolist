@@ -1,9 +1,8 @@
 import styled from '@emotion/styled';
 
 const InputGroup = styled.div`
-  height: 95px;
   font-weight: 700;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
   p {
     margin-bottom: 8px;
   }

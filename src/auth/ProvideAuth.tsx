@@ -4,7 +4,9 @@ import React, {
 
 const useAuthProvide = () => {
   const [user, setUser] = useState<IUser>();
-  const login = () => {};
+  const login = (account: IUser) => {
+    console.log('login', account);
+  };
   const logout = () => {};
   return {
     user,
@@ -13,12 +15,6 @@ const useAuthProvide = () => {
     setUser,
   };
 };
-
-interface IUser {
-  email: string;
-  password: string;
-  nickname?: string;
-}
 
 interface ProvideAuthContext {
   user?: IUser;

@@ -12,3 +12,10 @@ interface ITodo {
 interface IProgressBarStyle {
   left: number;
 }
+
+interface IUser {
+  email?: string;
+  password?: string;
+  passwordCheck?: string;
+  nickname?: string;
+}
