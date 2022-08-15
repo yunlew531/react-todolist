@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from '@emotion/styled';
 import Button from 'components/Button';
+import PrivateRoute from 'auth/PrivateRoute';
 import HeaderTitle from 'components/HeaderTitle';
 import TodoInput from './components/TodoInput';
 import TodoList from './components/TodoList';
@@ -113,35 +114,37 @@ const Home: React.FC = () => {
   }, [displayStatus, handleProgressBar]);
 
   return (
-    <Wrap>
-      <Header>
-        <HeaderTitle />
-        <p className="userName">王小明的代辦</p>
-        <Button
-          type="button"
-          p="0"
-          color="#333"
-          bgColor="transparent"
-          border="none"
-          transitionType="scale"
-        >
-          登出
-        </Button>
-      </Header>
-      <TodoContainer>
-        <TodoInput />
-        {todos.length
-          ? (
-            <TodoList
-              todos={displayTodos}
-              unfinishedTodoNum={unfinishedTodoNum}
-              progressBarStyle={progressBarStyle}
-              setDisplayStatus={setDisplayStatus}
-            />
-          ) : <TodoEmpty />}
-      </TodoContainer>
-      <BgDecorations />
-    </Wrap>
+    <PrivateRoute>
+      <Wrap>
+        <Header>
+          <HeaderTitle />
+          <p className="userName">王小明的代辦</p>
+          <Button
+            type="button"
+            p="0"
+            color="#333"
+            bgColor="transparent"
+            border="none"
+            transitionType="scale"
+          >
+            登出
+          </Button>
+        </Header>
+        <TodoContainer>
+          <TodoInput />
+          {todos.length
+            ? (
+              <TodoList
+                todos={displayTodos}
+                unfinishedTodoNum={unfinishedTodoNum}
+                progressBarStyle={progressBarStyle}
+                setDisplayStatus={setDisplayStatus}
+              />
+            ) : <TodoEmpty />}
+        </TodoContainer>
+        <BgDecorations />
+      </Wrap>
+    </PrivateRoute>
   );
 };
 
