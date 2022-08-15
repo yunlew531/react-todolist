@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import styled from '@emotion/styled';
 import Button from 'components/Button';
 import HeaderTitle from 'components/HeaderTitle';
@@ -42,7 +42,7 @@ const BgDecorations = styled.div`
 `;
 
 const Home: React.FC = () => {
-  const [todos, setTodos] = useState([
+  const [todos, setTodos] = useState<Array<ITodo>>([
     {
       title: '吃飯',
       id: 'jfioejw',
@@ -53,7 +53,51 @@ const Home: React.FC = () => {
       id: 'joeijg',
       finished: true,
     },
+    {
+      title: '上英文',
+      id: 'opiewe',
+      finished: true,
+    },
+    {
+      title: '聽音樂',
+      id: 'fraukd',
+      finished: false,
+    },
+    {
+      title: '打球',
+      id: 'niljve',
+      finished: true,
+    },
   ]);
+  const [displayTodos, setDisplayTodos] = useState<Array<ITodo>>([]);
+  const [displayStatus, setDisplayStatus] = useState<DisplayStatus>('all');
+  const [unfinishedTodoNum, setUnfinishedTodoNum] = useState(0);
+
+  const calUnfinishedTodo = (todosData: Array<ITodo>) => todosData.reduce((prev, todo) => (
+    todo.finished ? prev : prev + 1), 0);
+
+  const todosFilter = useCallback((todosData: Array<ITodo>) => todosData.filter((todo) => {
+    let result = false;
+    switch (displayStatus) {
+      case 'all':
+        result = true;
+        break;
+      case 'finished':
+        result = todo.finished;
+        break;
+      case 'unfinished':
+        result = !todo.finished;
+        break;
+      default:
+        result = false;
+    }
+    return result;
+  }), [displayStatus]);
+
+  useEffect(() => {
+    setDisplayTodos(todosFilter(todos));
+    setUnfinishedTodoNum(calUnfinishedTodo(todos));
+  }, [todos, todosFilter]);
 
   return (
     <Wrap>
@@ -73,7 +117,14 @@ const Home: React.FC = () => {
       </Header>
       <TodoContainer>
         <TodoInput />
-        {todos.length ? <TodoList todos={todos} setTodos={setTodos} /> : <TodoEmpty />}
+        {todos.length
+          ? (
+            <TodoList
+              todos={displayTodos}
+              unfinishedTodoNum={unfinishedTodoNum}
+              setDisplayStatus={setDisplayStatus}
+            />
+          ) : <TodoEmpty />}
       </TodoContainer>
       <BgDecorations />
     </Wrap>

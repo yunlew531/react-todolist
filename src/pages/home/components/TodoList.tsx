@@ -92,15 +92,16 @@ const TodoListFooter = styled.div`
 
 interface TodosProps {
   todos: Array<ITodo>;
-  setTodos: (todos: Array<ITodo>) => void;
+  unfinishedTodoNum: number;
+  setDisplayStatus: (status: DisplayStatus) => void;
 }
 
-const TodoList: React.FC<TodosProps> = ({ todos, setTodos }) => (
+const TodoList: React.FC<TodosProps> = ({ todos, setDisplayStatus, unfinishedTodoNum }) => (
   <Wrap>
     <ButtonGroup>
-      <StatusBtn type="button">全部</StatusBtn>
-      <StatusBtn type="button">待完成</StatusBtn>
-      <StatusBtn type="button">已完成</StatusBtn>
+      <StatusBtn type="button" onClick={() => setDisplayStatus('all')}>全部</StatusBtn>
+      <StatusBtn type="button" onClick={() => setDisplayStatus('unfinished')}>待完成</StatusBtn>
+      <StatusBtn type="button" onClick={() => setDisplayStatus('finished')}>已完成</StatusBtn>
     </ButtonGroup>
     <Progress />
     <TodoListContainer>
@@ -117,7 +118,7 @@ const TodoList: React.FC<TodosProps> = ({ todos, setTodos }) => (
         ))}
       </ul>
       <TodoListFooter>
-        <p>5 個待完成項目</p>
+        <p>{unfinishedTodoNum} 個待完成項目</p>
         <Button
           type="button"
           fs="14px"
