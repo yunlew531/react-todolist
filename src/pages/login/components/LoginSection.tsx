@@ -30,13 +30,12 @@ const LoginSection: React.FC<ILoginSectionProps> = ({ setCurrentDisplay }) => {
   const auth = useAuth();
   const { register, handleSubmit, formState: { errors } } = useForm<IUser>({});
   const { emailValidate, passwordValidate } = useValidate();
-  const [account, setAccout] = useState<IUser>({});
 
   /* eslint-disable */
   return (
     <>
       <Title>最實用的線上代辦事項服務</Title>
-      <form onSubmit={handleSubmit(() => auth.login(account))}>
+      <form onSubmit={handleSubmit((account) => auth.login(account))}>
         <InputGroup>
           <label htmlFor="email">
             <p>Email</p>

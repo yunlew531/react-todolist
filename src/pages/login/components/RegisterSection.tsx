@@ -33,12 +33,11 @@ const RegisterSection: React.FC<IRegisterSectionProps> = ({ setCurrentDisplay })
   const {
     register, handleSubmit, formState: { errors }, getValues,
   } = useForm();
-  const [account, setAccout] = useState<IUser>({});
   const handleRegister: SubmitHandler<IUser> = async (accountData: IUser) => {
     const { email, password, nickname } = accountData;
     const body = { user: { email, password, nickname } };
     try {
-      let res: Response | IRegisterResponse = await fetch(`${process.env.REACT_APP_URL as string}/users`, {
+      let res: Response | IRegisterAPIRes = await fetch(`${process.env.REACT_APP_URL as string}/users`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -46,13 +45,15 @@ const RegisterSection: React.FC<IRegisterSectionProps> = ({ setCurrentDisplay })
         },
         body: JSON.stringify(body),
       });
-      res = await res.json() as IRegisterResponse;
-      if (res.message !== '註冊成功') throw new Error(JSON.stringify(res.error));
+      const { status } = res;
+      res = await res.json() as IRegisterAPIRes;
+
+      if (status !== 201) throw new Error(JSON.stringify(res.error));
       toast.success(res.message);
       setCurrentDisplay('login');
     } catch (err) {
       if (err instanceof Error) {
-        const resErrors = JSON.parse(err.message) as IResponseError;
+        const resErrors = JSON.parse(err.message) as Array<string>;
         resErrors.forEach((error) => {
           if (!error.match('translation missing')) toast.error(error);
         });

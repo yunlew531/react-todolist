@@ -10,12 +10,12 @@ const App: React.FC = () => {
 };
 
 const AppWrapper: React.FC = () => (
-  <ProvideAuth>
-    <Router>
+  <Router>
+    <ProvideAuth>
       <Toaster />
       <App />
-    </Router>
-  </ProvideAuth>
+    </ProvideAuth>
+  </Router>
 );
 
 export default AppWrapper;

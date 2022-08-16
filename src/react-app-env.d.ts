@@ -20,10 +20,12 @@ interface IUser {
   nickname?: string;
 }
 
-type IResponseError = Array<string>;
-
-interface IRegisterResponse {
-  status: number;
+interface IRegisterAPIRes {
   message: string;
-  error: IResponseError;
+  error: Array<string>;
+}
+
+interface ILoginApiRes {
+  message: string;
+  error: string;
 }
