@@ -26,6 +26,12 @@ interface IRegisterAPIRes {
 }
 
 interface ILoginApiRes {
+  nickname: string;
+  email: string;
   message: string;
   error: string;
+}
+
+interface ICheckLoginApiRes {
+  message: string;
 }

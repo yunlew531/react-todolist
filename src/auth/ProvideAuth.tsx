@@ -6,7 +6,8 @@ import { useNavigate } from 'react-router-dom';
 
 const useAuthProvide = () => {
   const navigate = useNavigate();
-  const [user, setUser] = useState<IUser>();
+  const [user, setUser] = useState<IUser>({});
+  let isChecking = false;
 
   const login = async (account: IUser) => {
     const { email, password } = account;
@@ -24,26 +25,55 @@ const useAuthProvide = () => {
       const { status, headers } = res;
       const token = headers.get('authorization');
       res = await res.json() as ILoginApiRes;
-
+      const { nickname } = res;
       if (status !== 200) throw new Error(res.error);
       toast.success(res.message);
 
       if (!token) return;
       const expires = (new Date(Date.now() + 60 * 60 * 24 * 5 * 1000)).toString();
       document.cookie = `ReactTodos=${token};expires=${expires};`;
+      document.cookie = `ReactTodosNickName=${nickname};expires=${expires};`;
       navigate('/');
     } catch (err) {
       if (err instanceof Error) toast.error(err.message);
     }
   };
 
-  const logout = () => {};
+  const logout = () => {
+    document.cookie = 'ReactTodos=;expires=Thu, 01 Jan 1970 00:00:00 UTC;';
+    document.cookie = 'ReactTodosNickName=;expires=Thu, 01 Jan 1970 00:00:00 UTC;';
+    setUser({});
+    navigate('/login');
+  };
+
+  const checkAuth = (() => new Promise((resolve) => {
+    if (isChecking) return;
+    isChecking = true;
+    console.warn('check');
+    const token = document.cookie.replace(/(?:(?:^|.*;\s*)ReactTodos\s*=\s*([^;]*).*$)|^.*$/, '$1');
+    const nickname = document.cookie.replace(/(?:(?:^|.*;\s*)ReactTodosNickName\s*=\s*([^;]*).*$)|^.*$/, '$1');
+
+    fetch(`${process.env.REACT_APP_URL as string}check`, {
+      method: 'GET',
+      headers: { Authorization: token },
+    }).then((res) => {
+      const { status } = res;
+      if (status === 200) {
+        resolve(true);
+        setUser({ nickname });
+      } else {
+        resolve(false);
+      }
+      isChecking = false;
+    }).catch(() => { isChecking = false; });
+  }));
 
   return {
     user,
     login,
     logout,
     setUser,
+    checkAuth,
   };
 };
 
@@ -52,6 +82,7 @@ interface ProvideAuthContext {
   login: (user: IUser) => void;
   logout: () => void;
   setUser: (user: IUser) => void;
+  checkAuth: () => Promise<unknown>;
 }
 
 const authContext = createContext({} as ProvideAuthContext);

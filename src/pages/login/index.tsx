@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from '@emotion/styled';
+import { useAuth } from 'auth/ProvideAuth';
 import HeaderTitle from 'components/HeaderTitle';
+import { useNavigate } from 'react-router-dom';
 import LoginSection from './components/LoginSection';
 import RegisterSection from './components/RegisterSection';
 
@@ -25,7 +27,15 @@ const FormContainer = styled.div`
 `;
 
 const Login: React.FC = () => {
+  const navigate = useNavigate();
+  const { checkAuth } = useAuth();
   const [currentDisplay, setCurrentDisplay] = useState<CurrentDisplay>('login');
+
+  useEffect(() => {
+    checkAuth().then((res) => {
+      if (res) navigate('/');
+    }).catch(() => {});
+  }, [checkAuth, navigate]);
   return (
     <Wrap>
       <ImgContainer>

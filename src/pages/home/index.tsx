@@ -3,6 +3,7 @@ import styled from '@emotion/styled';
 import Button from 'components/Button';
 import PrivateRoute from 'auth/PrivateRoute';
 import HeaderTitle from 'components/HeaderTitle';
+import { useAuth } from 'auth/ProvideAuth';
 import TodoInput from './components/TodoInput';
 import TodoList from './components/TodoList';
 import TodoEmpty from './components/TodoEmpty';
@@ -43,6 +44,7 @@ const BgDecorations = styled.div`
 `;
 
 const Home: React.FC = () => {
+  const { logout, user } = useAuth();
   const [todos, setTodos] = useState<Array<ITodo>>([
     {
       title: '吃飯',
@@ -118,7 +120,7 @@ const Home: React.FC = () => {
       <Wrap>
         <Header>
           <HeaderTitle />
-          <p className="userName">王小明的代辦</p>
+          <p className="userName">{user?.nickname}的代辦</p>
           <Button
             type="button"
             p="0"
@@ -126,6 +128,7 @@ const Home: React.FC = () => {
             bgColor="transparent"
             border="none"
             transitionType="scale"
+            onClick={logout}
           >
             登出
           </Button>
