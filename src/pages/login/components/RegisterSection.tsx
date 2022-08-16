@@ -5,6 +5,7 @@ import { ErrorMessage } from '@hookform/error-message';
 import InputGroup from 'components/InputGroup';
 import Button from 'components/Button';
 import useValidate from 'utils/useValidate';
+import toast from 'react-hot-toast';
 
 const Title = styled.h2`
   font-size: 24px;
@@ -33,10 +34,32 @@ const RegisterSection: React.FC<IRegisterSectionProps> = ({ setCurrentDisplay })
     register, handleSubmit, formState: { errors }, getValues,
   } = useForm();
   const [account, setAccout] = useState<IUser>({});
-  const handleRegister: SubmitHandler<IUser> = (accountData: IUser) => {
-    console.log('register', accountData);
+  const handleRegister: SubmitHandler<IUser> = async (accountData: IUser) => {
+    const { email, password, nickname } = accountData;
+    const body = { user: { email, password, nickname } };
+    try {
+      let res: Response | IRegisterResponse = await fetch(`${process.env.REACT_APP_URL as string}/users`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify(body),
+      });
+      res = await res.json() as IRegisterResponse;
+      if (res.message !== '註冊成功') throw new Error(JSON.stringify(res.error));
+      toast.success(res.message);
+      setCurrentDisplay('login');
+    } catch (err) {
+      if (err instanceof Error) {
+        const resErrors = JSON.parse(err.message) as IResponseError;
+        resErrors.forEach((error) => {
+          if (!error.match('translation missing')) toast.error(error);
+        });
+      }
+    }
   };
-  const handlePasswordCheck = (passwordCheck?: string) => {
+  const handlePasswordCheck = (passwordCheck: string) => {
     const { password }: IUser = getValues();
     return passwordCheckValidate(password, passwordCheck);
   };
@@ -45,7 +68,7 @@ const RegisterSection: React.FC<IRegisterSectionProps> = ({ setCurrentDisplay })
   return (
     <>
       <Title>註冊帳號</Title>
-      <form onSubmit={handleSubmit((): void => handleRegister(account))}>
+      <form onSubmit={handleSubmit((account): void => handleRegister(account))}>
         <InputGroup>
           <label htmlFor="email">
             <p>Email</p>

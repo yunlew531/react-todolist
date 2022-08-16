@@ -19,3 +19,11 @@ interface IUser {
   passwordCheck?: string;
   nickname?: string;
 }
+
+type IResponseError = Array<string>;
+
+interface IRegisterResponse {
+  status: number;
+  message: string;
+  error: IResponseError;
+}

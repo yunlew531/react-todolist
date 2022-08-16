@@ -48,6 +48,7 @@ const Button = styled.button<IButtonProps>`
   border-radius: ${({ radius }) => radius || '10px'};
   padding: ${({ p }) => p || '12px 48px'};
   margin: ${({ m }) => m || '0'};
+  transition: transform 0.1s linear, filter 0.1s linear;
 ${
   ({ transitionType }) => (
     (transitionType === 'dark' && dark)
