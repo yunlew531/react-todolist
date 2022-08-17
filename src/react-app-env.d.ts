@@ -46,3 +46,8 @@ interface IGetTodosRes {
   message: string;
   todos?: Array<ITodo>
 }
+
+interface IUpdateTodoRes {
+  id: string;
+  content: string;
+}

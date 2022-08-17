@@ -138,6 +138,7 @@ const Home: React.FC = () => {
               progressBarStyle={progressBarStyle}
               setDisplayStatus={setDisplayStatus}
               getTodos={getTodos}
+              setTodos={setTodos}
             />
           ) : <TodoEmpty />}
       </TodoContainer>

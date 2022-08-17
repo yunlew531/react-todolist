@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from '@emotion/styled';
 import Progress from 'pages/home/components/Progress';
 import Button from 'components/Button';
@@ -32,56 +32,87 @@ const StatusBtn = styled.button`
   }
 `;
 
-const TodoListContainer = styled.div`
-  li {
+interface ITodoItemProps {
+  inputDisplay: 'block' | 'none';
+  contentDisplay: 'block' | 'none';
+}
+
+const TodoItem = styled.li<ITodoItemProps>`
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  background-color: #fff;
+  padding: 0 17px 0 23px;
+  transition: filter 0.1s linear;
+  &:hover {
+    filter: brightness(0.98);
+    .todo-edit-btn {
+      transform: translateY(0);
+    }
+  }
+  &:active {
+    filter: brightness(0.95);
+  }
+  .todo-edit-btn {
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    right: 10px;
+    top: 0px;
+    cursor: pointer;
+    color: #FFB4B4;
+    background-color: #FFF9CA;
+    border-radius: 0 0 7px 7px;
+    padding: 5px;
+    border: none;
+    transition: transform 0.2s linear;
+    transform: translateY(-100%);
+  }
+  .todo-checkbox {
+    display: block;
+    width: 24px;
+    height: 24px;
+    cursor: default;
+    border: 1px solid #9F9A91;
+    border-radius: 5px;
+    margin-right: 16px;
+  }
+  .todo-checkbox-done {
+    display: none;
+    cursor: default;
+    color: #FFD370;
+    margin-right: 16px;
+  }
+  > .todo-container {
+    position: relative;
     display: flex;
     align-items: center;
-    background-color: #fff;
-    padding: 0 17px 0 23px;
-    transition: filter 0.1s linear;
-    &:hover {
-      filter: brightness(0.98);
-    }
-    &:active {
-      filter: brightness(0.95);
-    }
+    width: 100%;
+    border-bottom: 1px solid #E5E5E5;
+    padding: 24px 17px 24px 0;
+    margin-right: 17px;
+  }
+  .todo-content {
+    display: ${({ contentDisplay }) => contentDisplay};
+  }
+  .todo-delete-btn {
+    cursor: pointer;
+  }
+  .edit-todo-input {
+    display: ${({ inputDisplay }) => inputDisplay};
+    border: 1px solid #000;
+  }
+  &.finished {
     .todo-checkbox {
-      display: block;
-      width: 20px;
-      height: 20px;
-      cursor: default;
-      border: 1px solid #9F9A91;
-      border-radius: 5px;
-      margin-right: 16px;
+      display: none;
     }
     .todo-checkbox-done {
-      display: none;
-      cursor: default;
-      color: #FFD370;
-      margin-right: 16px;
+      display: block;
     }
-    > .todo-content {
-      display: flex;
-      align-items: center;
-      width: 100%;
-      border-bottom: 1px solid #E5E5E5;
-      padding: 24px 17px 24px 0;
-      margin-right: 17px;
-    }
-    .todo-delete-btn {
-      cursor: pointer;
-    }
-    &.finished {
-      .todo-checkbox {
-        display: none;
-      }
-      .todo-checkbox-done {
-        display: block;
-      }
-      .todo-text {
-        color: #9F9A91;
-        text-decoration: line-through;
-      }
+    .todo-content {
+      color: #9F9A91;
+      text-decoration: line-through;
     }
   }
 `;
@@ -97,13 +128,19 @@ interface ITodosProps {
   progressBarStyle: IProgressBarStyle;
   unfinishedTodoNum: number;
   setDisplayStatus: (status: DisplayStatus) => void;
-  getTodos: ()=>void
+  getTodos: ()=> void;
+  setTodos: (todos: React.SetStateAction<ITodo[]>) => void;
 }
 
 const TodoList: React.FC<ITodosProps> = ({
-  todos, setDisplayStatus, unfinishedTodoNum, progressBarStyle, getTodos,
+  todos, setDisplayStatus, unfinishedTodoNum, progressBarStyle, getTodos, setTodos,
 }) => {
-  const toggleFinish = async (id: string) => {
+  const [currentEdit, setCurrentEdit] = useState({ id: '', content: '' });
+
+  const toggleFinish = async (e: React.MouseEvent<HTMLLIElement>, id: string) => {
+    if ((e.target as HTMLElement).tagName === 'INPUT') return;
+    if (currentEdit.id === id) return;
+
     try {
       const res = await fetch(`${process.env.REACT_APP_URL as string}todos/${id}/toggle`, {
         method: 'PATCH',
@@ -115,8 +152,40 @@ const TodoList: React.FC<ITodosProps> = ({
       getTodos();
     } catch (err) { toast.error('發生錯誤，請稍後再修改!'); }
   };
-  return (
 
+  const editTodo = (e: React.MouseEvent<HTMLButtonElement>, { id, content }: ITodo) => {
+    e.stopPropagation();
+    setCurrentEdit({ id, content });
+  };
+
+  const submitEdit = async (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key !== 'Enter') return;
+    console.log('submit');
+    const { id } = currentEdit;
+    let { content } = currentEdit;
+
+    const body = { todo: { content } };
+    try {
+      let res: Response | IUpdateTodoRes = await fetch(`${process.env.REACT_APP_URL as string}todos/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          Authorization: Cookies.get('ReactTodos') || '',
+        },
+        body: JSON.stringify(body),
+      });
+      const { status } = res;
+      if (status !== 200) throw new Error();
+
+      res = await res.json() as IUpdateTodoRes;
+      ({ content } = res);
+      setTodos((prev) => prev.map((todo) => (todo.id === id ? { ...todo, content } : todo)));
+      setCurrentEdit({ id: '', content: '' });
+    } catch (err) { toast.error('發生錯誤，請稍後再嘗試!'); }
+  };
+
+  return (
     <Wrap>
       <ButtonGroup>
         <StatusBtn type="button" onClick={() => setDisplayStatus('all')}>全部</StatusBtn>
@@ -124,34 +193,53 @@ const TodoList: React.FC<ITodosProps> = ({
         <StatusBtn type="button" onClick={() => setDisplayStatus('finished')}>已完成</StatusBtn>
       </ButtonGroup>
       <Progress progressBarStyle={progressBarStyle} />
-      <TodoListContainer>
-        <ul>
-          {todos.map((todo) => (
-            <li key={todo.id} className={todo.completed_at ? 'finished' : ''} onClick={() => toggleFinish(todo.id)}>
-              <div className="todo-content">
-                <span className="material-icons-outlined todo-checkbox-done">done</span>
-                <span className="todo-checkbox" />
-                <span className="todo-text">{todo.content}</span>
-              </div>
-              <span className="material-icons-outlined todo-delete-btn">close</span>
-            </li>
-          ))}
-        </ul>
-        <TodoListFooter>
-          <p>{unfinishedTodoNum} 個待完成項目</p>
-          <Button
-            type="button"
-            fs="14px"
-            p="0"
-            color="#9F9A91"
-            bgColor="transparent"
-            border="none"
-            transitionType="dark"
+      <ul>
+        {todos.map((todo) => (
+          <TodoItem
+            key={todo.id}
+            className={todo.completed_at ? 'finished' : ''}
+            inputDisplay={todo.id === currentEdit.id ? 'block' : 'none'}
+            contentDisplay={todo.id === currentEdit.id ? 'none' : 'block'}
+            onClick={(e) => toggleFinish(e, todo.id)}
           >
-            清除已完成項目
-          </Button>
-        </TodoListFooter>
-      </TodoListContainer>
+            <div className="todo-container">
+              <button type="button" className="todo-edit-btn" onClick={(e) => editTodo(e, todo)}>
+                <span className="material-icons-outlined">edit</span>
+              </button>
+              <span className="material-icons-outlined todo-checkbox-done">done</span>
+              <span className="todo-checkbox" />
+              <p className="todo-content">{todo.content}</p>
+              <input
+                type="text"
+                className="edit-todo-input"
+                value={currentEdit.content}
+                onChange={
+                  (e: React.ChangeEvent<HTMLInputElement>) => setCurrentEdit((prev) => ({
+                    ...prev,
+                    content: e.target.value,
+                  }))
+                }
+                onKeyUp={(e) => submitEdit(e)}
+              />
+            </div>
+            <span className="material-icons-outlined todo-delete-btn">close</span>
+          </TodoItem>
+        ))}
+      </ul>
+      <TodoListFooter>
+        <p>{unfinishedTodoNum} 個待完成項目</p>
+        <Button
+          type="button"
+          fs="14px"
+          p="0"
+          color="#9F9A91"
+          bgColor="transparent"
+          border="none"
+          transitionType="dark"
+        >
+          清除已完成項目
+        </Button>
+      </TodoListFooter>
     </Wrap>
   );
 };

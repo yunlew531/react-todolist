@@ -31,9 +31,8 @@ const useAuthProvide = () => {
       toast.success(res.message);
 
       if (!token) return;
-      const expires = (new Date(Date.now() + 60 * 60 * 24 * 5 * 1000)).toString();
-      document.cookie = `ReactTodos=${token};expires=${expires};`;
-      document.cookie = `ReactTodosNickName=${nickname};expires=${expires};`;
+      Cookies.set('ReactTodos', token);
+      Cookies.set('ReactTodosNickName', nickname, { expires: 7 });
       navigate('/');
     } catch (err) {
       if (err instanceof Error) toast.error(err.message);
