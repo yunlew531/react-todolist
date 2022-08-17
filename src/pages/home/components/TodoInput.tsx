@@ -35,13 +35,17 @@ const AddTodoBtn = styled.button`
   }
 `;
 
-const TodoInput: React.FC = () => {
+interface ITodoInputProps {
+  getTodos: () => void
+}
+
+const TodoInput: React.FC<ITodoInputProps> = ({ getTodos }) => {
   const { handleSubmit, register, setValue } = useForm();
 
   const addTodo: SubmitHandler<{ content?: string }> = async ({ content }) => {
     const body = { todo: { content } };
     try {
-      let res: Response | IAddTodoRes = await fetch(`${(process.env.REACT_APP_URL as string)}todos`, {
+      let res: Response | IAddTodoRes = await fetch(`${process.env.REACT_APP_URL as string}todos`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -59,6 +63,7 @@ const TodoInput: React.FC = () => {
         duration: 5000,
       });
       setValue('content', '');
+      getTodos();
     } catch (err) { toast.error('發生錯誤!'); }
   };
 

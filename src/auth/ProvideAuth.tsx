@@ -3,6 +3,7 @@ import React, {
 } from 'react';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
+import Cookies from 'js-cookie';
 
 const useAuthProvide = () => {
   const navigate = useNavigate();
@@ -50,17 +51,15 @@ const useAuthProvide = () => {
     if (isChecking) return;
     isChecking = true;
     console.warn('check');
-    const token = document.cookie.replace(/(?:(?:^|.*;\s*)ReactTodos\s*=\s*([^;]*).*$)|^.*$/, '$1');
-    const nickname = document.cookie.replace(/(?:(?:^|.*;\s*)ReactTodosNickName\s*=\s*([^;]*).*$)|^.*$/, '$1');
 
     fetch(`${process.env.REACT_APP_URL as string}check`, {
       method: 'GET',
-      headers: { Authorization: token },
+      headers: { Authorization: Cookies.get('ReactTodos') || '' },
     }).then((res) => {
       const { status } = res;
       if (status === 200) {
         resolve(true);
-        setUser({ nickname });
+        setUser({ nickname: Cookies.get('ReactTodosNickName') });
       } else {
         resolve(false);
       }

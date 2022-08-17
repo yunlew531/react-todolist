@@ -84,7 +84,7 @@ const Home: React.FC = () => {
 
   const getTodos = useCallback(async () => {
     try {
-      let res: Response | IGetTodosRes = await fetch(`${(process.env.REACT_APP_URL as string)}todos`, {
+      let res: Response | IGetTodosRes = await fetch(`${process.env.REACT_APP_URL as string}todos`, {
         method: 'GET',
         headers: { Authorization: Cookies.get('ReactTodos') || '' },
       });
@@ -95,7 +95,7 @@ const Home: React.FC = () => {
       const { todos: todosRes } = res;
       if (!todosRes) return;
       setTodos(todosRes);
-    } catch (err) { toast.error('發生錯誤! 無法取得資料!'); }
+    } catch (err) { toast.error('發生錯誤，無法取得資料!'); }
   }, []);
 
   useEffect(() => {
@@ -112,39 +112,44 @@ const Home: React.FC = () => {
   }, [displayStatus, handleProgressBar]);
 
   return (
-    <PrivateRoute>
-      <Wrap>
-        <Header>
-          <HeaderTitle />
-          <p className="userName">{user?.nickname}的代辦</p>
-          <Button
-            type="button"
-            p="0"
-            color="#333"
-            bgColor="transparent"
-            border="none"
-            transitionType="scale"
-            onClick={logout}
-          >
-            登出
-          </Button>
-        </Header>
-        <TodoContainer>
-          <TodoInput />
-          {todos.length
-            ? (
-              <TodoList
-                todos={displayTodos}
-                unfinishedTodoNum={unfinishedTodoNum}
-                progressBarStyle={progressBarStyle}
-                setDisplayStatus={setDisplayStatus}
-              />
-            ) : <TodoEmpty />}
-        </TodoContainer>
-        <BgDecorations />
-      </Wrap>
-    </PrivateRoute>
+    <Wrap>
+      <Header>
+        <HeaderTitle />
+        <p className="userName">{user?.nickname}的代辦</p>
+        <Button
+          type="button"
+          p="0"
+          color="#333"
+          bgColor="transparent"
+          border="none"
+          transitionType="scale"
+          onClick={logout}
+        >
+          登出
+        </Button>
+      </Header>
+      <TodoContainer>
+        <TodoInput getTodos={getTodos} />
+        {todos.length
+          ? (
+            <TodoList
+              todos={displayTodos}
+              unfinishedTodoNum={unfinishedTodoNum}
+              progressBarStyle={progressBarStyle}
+              setDisplayStatus={setDisplayStatus}
+              getTodos={getTodos}
+            />
+          ) : <TodoEmpty />}
+      </TodoContainer>
+      <BgDecorations />
+    </Wrap>
   );
 };
 
-export default Home;
+const HomeWrapper: React.FC = () => (
+  <PrivateRoute>
+    <Home />
+  </PrivateRoute>
+);
+
+export default HomeWrapper;

@@ -2,6 +2,8 @@ import React from 'react';
 import styled from '@emotion/styled';
 import Progress from 'pages/home/components/Progress';
 import Button from 'components/Button';
+import Cookies from 'js-cookie';
+import toast from 'react-hot-toast';
 
 const Wrap = styled.div`
   border-radius: 10px;
@@ -95,47 +97,63 @@ interface ITodosProps {
   progressBarStyle: IProgressBarStyle;
   unfinishedTodoNum: number;
   setDisplayStatus: (status: DisplayStatus) => void;
+  getTodos: ()=>void
 }
 
 const TodoList: React.FC<ITodosProps> = ({
-  todos, setDisplayStatus, unfinishedTodoNum, progressBarStyle,
-}) => (
-  <Wrap>
-    <ButtonGroup>
-      <StatusBtn type="button" onClick={() => setDisplayStatus('all')}>全部</StatusBtn>
-      <StatusBtn type="button" onClick={() => setDisplayStatus('unfinished')}>待完成</StatusBtn>
-      <StatusBtn type="button" onClick={() => setDisplayStatus('finished')}>已完成</StatusBtn>
-    </ButtonGroup>
-    <Progress progressBarStyle={progressBarStyle} />
-    <TodoListContainer>
-      <ul>
-        {todos.map((todo) => (
-          <li key={todo.id} className={todo.completed_at ? 'finished' : ''}>
-            <div className="todo-content">
-              <span className="material-icons-outlined todo-checkbox-done">done</span>
-              <span className="todo-checkbox" />
-              <span className="todo-text">{todo.content}</span>
-            </div>
-            <span className="material-icons-outlined todo-delete-btn">close</span>
-          </li>
-        ))}
-      </ul>
-      <TodoListFooter>
-        <p>{unfinishedTodoNum} 個待完成項目</p>
-        <Button
-          type="button"
-          fs="14px"
-          p="0"
-          color="#9F9A91"
-          bgColor="transparent"
-          border="none"
-          transitionType="dark"
-        >
-          清除已完成項目
-        </Button>
-      </TodoListFooter>
-    </TodoListContainer>
-  </Wrap>
-);
+  todos, setDisplayStatus, unfinishedTodoNum, progressBarStyle, getTodos,
+}) => {
+  const toggleFinish = async (id: string) => {
+    try {
+      const res = await fetch(`${process.env.REACT_APP_URL as string}todos/${id}/toggle`, {
+        method: 'PATCH',
+        headers: { Authorization: Cookies.get('ReactTodos') || '' },
+      });
+      const { status } = res;
+      if (status !== 200) throw new Error();
+
+      getTodos();
+    } catch (err) { toast.error('發生錯誤，請稍後再修改!'); }
+  };
+  return (
+
+    <Wrap>
+      <ButtonGroup>
+        <StatusBtn type="button" onClick={() => setDisplayStatus('all')}>全部</StatusBtn>
+        <StatusBtn type="button" onClick={() => setDisplayStatus('unfinished')}>待完成</StatusBtn>
+        <StatusBtn type="button" onClick={() => setDisplayStatus('finished')}>已完成</StatusBtn>
+      </ButtonGroup>
+      <Progress progressBarStyle={progressBarStyle} />
+      <TodoListContainer>
+        <ul>
+          {todos.map((todo) => (
+            <li key={todo.id} className={todo.completed_at ? 'finished' : ''} onClick={() => toggleFinish(todo.id)}>
+              <div className="todo-content">
+                <span className="material-icons-outlined todo-checkbox-done">done</span>
+                <span className="todo-checkbox" />
+                <span className="todo-text">{todo.content}</span>
+              </div>
+              <span className="material-icons-outlined todo-delete-btn">close</span>
+            </li>
+          ))}
+        </ul>
+        <TodoListFooter>
+          <p>{unfinishedTodoNum} 個待完成項目</p>
+          <Button
+            type="button"
+            fs="14px"
+            p="0"
+            color="#9F9A91"
+            bgColor="transparent"
+            border="none"
+            transitionType="dark"
+          >
+            清除已完成項目
+          </Button>
+        </TodoListFooter>
+      </TodoListContainer>
+    </Wrap>
+  );
+};
 
 export default TodoList;
