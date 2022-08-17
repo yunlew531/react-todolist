@@ -35,3 +35,9 @@ interface ILoginApiRes {
 interface ICheckLoginApiRes {
   message: string;
 }
+
+interface IAddTodoRes {
+  id: string;
+  content: string;
+  message: string;
+}

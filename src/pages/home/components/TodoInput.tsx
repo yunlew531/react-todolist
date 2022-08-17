@@ -1,5 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import styled from '@emotion/styled';
+import Cookie from 'js-cookie';
+import toast from 'react-hot-toast';
+import { FieldValues, SubmitHandler, useForm } from 'react-hook-form';
 
 const InputGroup = styled.div`
   position: relative;
@@ -33,14 +36,46 @@ const AddTodoBtn = styled.button`
 `;
 
 const TodoInput: React.FC = () => {
-  const [value, setValue] = useState('');
+  const { handleSubmit, register } = useForm();
+
+  const addTodo: SubmitHandler<{ content?: string }> = async ({ content }) => {
+    const token = Cookie.get('ReactTodos') || '';
+    const body = { todo: { content } };
+    try {
+      let res: Response | IAddTodoRes = await fetch(`${(process.env.REACT_APP_URL as string)}todos`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          Authorization: token,
+        },
+        body: JSON.stringify(body),
+      });
+      const { status } = res;
+      if (status !== 201) throw new Error();
+
+      res = await res.json() as IAddTodoRes;
+      const { content: resContent } = res;
+      toast.success(`已新增: ${resContent}`, {
+        duration: 5000,
+      });
+    } catch (err) { toast.error('發生錯誤!'); }
+  };
+
+  const onError = (errors: FieldValues) => {
+    const { content } = errors as { content: { message: string } };
+    toast.error(content.message);
+  };
+
   return (
-    <InputGroup>
-      <input type="text" value={value} placeholder="新增待辦事項" onChange={() => setValue(value)} />
-      <AddTodoBtn>
-        <span className="material-icons-outlined add-icon">add</span>
-      </AddTodoBtn>
-    </InputGroup>
+    <form onSubmit={handleSubmit((formData): void => addTodo(formData), onError)}>
+      <InputGroup>
+        <input type="text" placeholder="新增代辦事項" {...register('content', { required: '請填寫 Todo 內容' })} />
+        <AddTodoBtn type="submit">
+          <span className="material-icons-outlined add-icon">add</span>
+        </AddTodoBtn>
+      </InputGroup>
+    </form>
   );
 };
 

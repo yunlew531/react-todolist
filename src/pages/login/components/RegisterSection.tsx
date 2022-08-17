@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import styled from '@emotion/styled';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { ErrorMessage } from '@hookform/error-message';
@@ -33,8 +33,7 @@ const RegisterSection: React.FC<IRegisterSectionProps> = ({ setCurrentDisplay })
   const {
     register, handleSubmit, formState: { errors }, getValues,
   } = useForm();
-  const handleRegister: SubmitHandler<IUser> = async (accountData: IUser) => {
-    const { email, password, nickname } = accountData;
+  const handleRegister: SubmitHandler<IUser> = async ({ email, password, nickname }) => {
     const body = { user: { email, password, nickname } };
     try {
       let res: Response | IRegisterAPIRes = await fetch(`${process.env.REACT_APP_URL as string}/users`, {
@@ -69,7 +68,7 @@ const RegisterSection: React.FC<IRegisterSectionProps> = ({ setCurrentDisplay })
   return (
     <>
       <Title>註冊帳號</Title>
-      <form onSubmit={handleSubmit((account): void => handleRegister(account))}>
+      <form onSubmit={handleSubmit((account) => handleRegister(account))}>
         <InputGroup>
           <label htmlFor="email">
             <p>Email</p>
