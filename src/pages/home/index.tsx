@@ -4,6 +4,8 @@ import Button from 'components/Button';
 import PrivateRoute from 'auth/PrivateRoute';
 import HeaderTitle from 'components/HeaderTitle';
 import { useAuth } from 'auth/ProvideAuth';
+import toast from 'react-hot-toast';
+import Cookies from 'js-cookie';
 import TodoInput from './components/TodoInput';
 import TodoList from './components/TodoList';
 import TodoEmpty from './components/TodoEmpty';
@@ -45,33 +47,7 @@ const BgDecorations = styled.div`
 
 const Home: React.FC = () => {
   const { logout, user } = useAuth();
-  const [todos, setTodos] = useState<Array<ITodo>>([
-    {
-      title: '吃飯',
-      id: 'jfioejw',
-      finished: false,
-    },
-    {
-      title: '睡覺',
-      id: 'joeijg',
-      finished: true,
-    },
-    {
-      title: '上英文',
-      id: 'opiewe',
-      finished: true,
-    },
-    {
-      title: '聽音樂',
-      id: 'fraukd',
-      finished: false,
-    },
-    {
-      title: '打球',
-      id: 'niljve',
-      finished: true,
-    },
-  ]);
+  const [todos, setTodos] = useState<Array<ITodo>>([]);
 
   const [displayTodos, setDisplayTodos] = useState<Array<ITodo>>([]);
   const [displayStatus, setDisplayStatus] = useState<DisplayStatus>('all');
@@ -86,7 +62,7 @@ const Home: React.FC = () => {
   }, [displayStatus]);
 
   const calUnfinishedTodo = (todosData: Array<ITodo>) => todosData.reduce((prev, todo) => (
-    todo.finished ? prev : prev + 1), 0);
+    todo.completed_at ? prev : prev + 1), 0);
 
   const todosFilter = useCallback((todosData: Array<ITodo>) => todosData.filter((todo) => {
     let result = false;
@@ -95,10 +71,10 @@ const Home: React.FC = () => {
         result = true;
         break;
       case 'finished':
-        result = todo.finished;
+        result = todo.completed_at;
         break;
       case 'unfinished':
-        result = !todo.finished;
+        result = !todo.completed_at;
         break;
       default:
         result = false;
@@ -106,10 +82,27 @@ const Home: React.FC = () => {
     return result;
   }), [displayStatus]);
 
+  const getTodos = useCallback(async () => {
+    try {
+      let res: Response | IGetTodosRes = await fetch(`${(process.env.REACT_APP_URL as string)}todos`, {
+        method: 'GET',
+        headers: { Authorization: Cookies.get('ReactTodos') || '' },
+      });
+      const { status } = res;
+      if (status !== 200) throw new Error();
+
+      res = await res.json() as IGetTodosRes;
+      const { todos: todosRes } = res;
+      if (!todosRes) return;
+      setTodos(todosRes);
+    } catch (err) { toast.error('發生錯誤! 無法取得資料!'); }
+  }, []);
+
   useEffect(() => {
+    getTodos().catch(() => {});
     setDisplayTodos(todosFilter(todos));
     setUnfinishedTodoNum(calUnfinishedTodo(todos));
-  }, [todos, todosFilter]);
+  }, [todos, todosFilter, getTodos]);
 
   useEffect(() => {
     setProgressBarStyle(handleProgressBar());

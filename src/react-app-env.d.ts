@@ -4,9 +4,9 @@ type CurrentDisplay = 'login' | 'register';
 type DisplayStatus = 'all' | 'finished' | 'unfinished';
 
 interface ITodo {
-  title: string;
+  content: string;
   id: string;
-  finished: boolean;
+  completed_at: boolean;
 }
 
 interface IProgressBarStyle {
@@ -40,4 +40,9 @@ interface IAddTodoRes {
   id: string;
   content: string;
   message: string;
+}
+
+interface IGetTodosRes {
+  message: string;
+  todos?: Array<ITodo>
 }

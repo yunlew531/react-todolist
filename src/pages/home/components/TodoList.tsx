@@ -110,11 +110,11 @@ const TodoList: React.FC<ITodosProps> = ({
     <TodoListContainer>
       <ul>
         {todos.map((todo) => (
-          <li key={todo.id} className={todo.finished ? 'finished' : ''}>
+          <li key={todo.id} className={todo.completed_at ? 'finished' : ''}>
             <div className="todo-content">
               <span className="material-icons-outlined todo-checkbox-done">done</span>
               <span className="todo-checkbox" />
-              <span className="todo-text">{todo.title}</span>
+              <span className="todo-text">{todo.content}</span>
             </div>
             <span className="material-icons-outlined todo-delete-btn">close</span>
           </li>

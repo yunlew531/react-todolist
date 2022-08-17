@@ -36,10 +36,9 @@ const AddTodoBtn = styled.button`
 `;
 
 const TodoInput: React.FC = () => {
-  const { handleSubmit, register } = useForm();
+  const { handleSubmit, register, setValue } = useForm();
 
   const addTodo: SubmitHandler<{ content?: string }> = async ({ content }) => {
-    const token = Cookie.get('ReactTodos') || '';
     const body = { todo: { content } };
     try {
       let res: Response | IAddTodoRes = await fetch(`${(process.env.REACT_APP_URL as string)}todos`, {
@@ -47,7 +46,7 @@ const TodoInput: React.FC = () => {
         headers: {
           'Content-Type': 'application/json',
           Accept: 'application/json',
-          Authorization: token,
+          Authorization: Cookie.get('ReactTodos') || '',
         },
         body: JSON.stringify(body),
       });
@@ -56,9 +55,10 @@ const TodoInput: React.FC = () => {
 
       res = await res.json() as IAddTodoRes;
       const { content: resContent } = res;
-      toast.success(`已新增: ${resContent}`, {
+      toast.success(`已新增 Todo:\u00A0\u00A0${resContent}`, {
         duration: 5000,
       });
+      setValue('content', '');
     } catch (err) { toast.error('發生錯誤!'); }
   };
 
