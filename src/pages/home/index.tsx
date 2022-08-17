@@ -100,6 +100,9 @@ const Home: React.FC = () => {
 
   useEffect(() => {
     getTodos().catch(() => {});
+  }, [getTodos]);
+
+  useEffect(() => {
     setDisplayTodos(todosFilter(todos));
     setUnfinishedTodoNum(calUnfinishedTodo(todos));
   }, [todos, todosFilter, getTodos]);
