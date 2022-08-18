@@ -8,7 +8,6 @@ import Cookies from 'js-cookie';
 const useAuthProvide = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<IUser>({});
-  let isChecking = false;
 
   const login = async (account: IUser) => {
     const { email, password } = account;
@@ -47,10 +46,6 @@ const useAuthProvide = () => {
   };
 
   const checkAuth = (() => new Promise((resolve) => {
-    if (isChecking) return;
-    isChecking = true;
-    console.warn('check');
-
     fetch(`${process.env.REACT_APP_URL as string}check`, {
       method: 'GET',
       headers: { Authorization: Cookies.get('ReactTodos') || '' },
@@ -62,8 +57,8 @@ const useAuthProvide = () => {
       } else {
         resolve(false);
       }
-      isChecking = false;
-    }).catch(() => { isChecking = false; });
+    }).catch(() => {
+    });
   }));
 
   return {

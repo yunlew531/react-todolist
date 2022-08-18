@@ -97,6 +97,8 @@ const TodoItem = styled.li<ITodoItemProps>`
     display: ${({ contentDisplay }) => contentDisplay};
   }
   .todo-delete-btn {
+    border: none;
+    background-color: transparent;
     cursor: pointer;
   }
   .edit-todo-input {
@@ -160,7 +162,6 @@ const TodoList: React.FC<ITodosProps> = ({
 
   const submitEdit = async (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key !== 'Enter') return;
-    console.log('submit');
     const { id } = currentEdit;
     let { content } = currentEdit;
 
@@ -182,6 +183,22 @@ const TodoList: React.FC<ITodosProps> = ({
       ({ content } = res);
       setTodos((prev) => prev.map((todo) => (todo.id === id ? { ...todo, content } : todo)));
       setCurrentEdit({ id: '', content: '' });
+    } catch (err) { toast.error('發生錯誤，請稍後再嘗試!'); }
+  };
+
+  const deleteTodo = async (e: React.MouseEvent<HTMLButtonElement>, { id, content }: ITodo) => {
+    e.stopPropagation();
+    try {
+      let res: Response | IDeleteTodoRes = await fetch(`${process.env.REACT_APP_URL as string}todos/${id}`, {
+        method: 'DELETE',
+        headers: { Authorization: Cookies.get('ReactTodos') || '' },
+      });
+      const { status } = res;
+      if (status !== 200) throw new Error();
+
+      res = await res.json() as IDeleteTodoRes;
+      toast.success(`已刪除 ${content}`);
+      getTodos();
     } catch (err) { toast.error('發生錯誤，請稍後再嘗試!'); }
   };
 
@@ -222,7 +239,17 @@ const TodoList: React.FC<ITodosProps> = ({
                 onKeyUp={(e) => submitEdit(e)}
               />
             </div>
-            <span className="material-icons-outlined todo-delete-btn">close</span>
+            <Button
+              type="button"
+              p="0"
+              color="#000"
+              bgColor="transparent"
+              transitionType="scale"
+              border="none"
+              onClick={(e) => deleteTodo(e, todo)}
+            >
+              <span className="material-icons-outlined">close</span>
+            </Button>
           </TodoItem>
         ))}
       </ul>

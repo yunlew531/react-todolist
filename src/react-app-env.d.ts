@@ -51,3 +51,7 @@ interface IUpdateTodoRes {
   id: string;
   content: string;
 }
+
+interface IDeleteTodoRes {
+  message: string;
+}
