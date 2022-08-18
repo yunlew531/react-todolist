@@ -203,10 +203,12 @@ const TodoList: React.FC<ITodosProps> = ({
   };
 
   // eslint-disable-next-line max-len
-  type DeleteFinishTodosRes = Array<Response> | Array<IDeleteTodoRes> | Array<Promise<IDeleteTodoRes>>;
+  type DeleteFinishTodosRes = Array<Response> | Array<IDeleteTodoRes>;
 
   const deleteFinishTodos = async (todosData: Array<ITodo>) => {
     const finishTodos = todosData.filter((todo) => todo.completed_at);
+    if (!finishTodos.length) return;
+
     try {
       const resArr: DeleteFinishTodosRes = await Promise.all(
         finishTodos.map((todo) => fetch(`${process.env.REACT_APP_URL as string}todos/${todo.id}`, {
