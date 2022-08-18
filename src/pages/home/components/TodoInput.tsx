@@ -65,7 +65,7 @@ const TodoInput: React.FC<ITodoInputProps> = ({ getTodos }) => {
 
       res = await res.json() as IAddTodoRes;
       const { content: resContent } = res;
-      toast.success(`已新增 Todo:\u00A0\u00A0${resContent}`, {
+      toast.success(`已新增: ${resContent}`, {
         duration: 5000,
       });
       setValue('content', '');

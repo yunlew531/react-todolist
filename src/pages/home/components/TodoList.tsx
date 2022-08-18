@@ -71,6 +71,7 @@ const TodoItem = styled.li<ITodoItemProps>`
     transform: translateY(-100%);
   }
   .todo-checkbox {
+    flex-shrink: 0;
     display: block;
     width: 24px;
     height: 24px;
@@ -80,6 +81,7 @@ const TodoItem = styled.li<ITodoItemProps>`
     margin-right: 16px;
   }
   .todo-checkbox-done {
+    flex-shrink: 0;
     display: none;
     cursor: default;
     color: #FFD370;
@@ -141,25 +143,25 @@ const TodoList: React.FC<ITodosProps> = ({
   const { setIsLoading } = useLoading();
   const [currentEdit, setCurrentEdit] = useState({ id: '', content: '' });
 
-  const toggleFinish = async (e: React.MouseEvent<HTMLLIElement>, id: string) => {
+  const toggleFinished = async (e: React.MouseEvent<HTMLLIElement>, id: string) => {
     if ((e.target as HTMLElement).tagName === 'INPUT') return;
     if (currentEdit.id === id) return;
 
     setIsLoading(true);
     try {
-      const res = await fetch(`${process.env.REACT_APP_URL as string}todos/${id}/toggle`, {
+      let res: Response | ITodo = await fetch(`${process.env.REACT_APP_URL as string}todos/${id}/toggle`, {
         method: 'PATCH',
         headers: { Authorization: Cookies.get('ReactTodos') || '' },
       });
       const { status } = res;
       if (status !== 200) throw new Error();
 
-      setIsLoading(false);
-      getTodos();
-    } catch (err) {
-      toast.error('發生錯誤，請稍後再修改!');
-      setIsLoading(false);
-    }
+      res = await res.json() as ITodo;
+      setTodos((prev) => prev.map((todo) => (
+        todo.id === id ? { ...todo, completed_at: (res as ITodo).completed_at } : todo
+      )));
+    } catch (err) { toast.error('發生錯誤，請稍後再修改!'); }
+    setIsLoading(false);
   };
 
   const editTodo = (e: React.MouseEvent<HTMLButtonElement>, { id, content }: ITodo) => {
@@ -261,7 +263,7 @@ const TodoList: React.FC<ITodosProps> = ({
             className={todo.completed_at ? 'finished' : ''}
             inputDisplay={todo.id === currentEdit.id ? 'block' : 'none'}
             contentDisplay={todo.id === currentEdit.id ? 'none' : 'block'}
-            onClick={(e) => toggleFinish(e, todo.id)}
+            onClick={(e) => toggleFinished(e, todo.id)}
           >
             <div className="todo-container">
               <button type="button" className="todo-edit-btn" onClick={(e) => editTodo(e, todo)}>
