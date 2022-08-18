@@ -202,6 +202,26 @@ const TodoList: React.FC<ITodosProps> = ({
     } catch (err) { toast.error('發生錯誤，請稍後再嘗試!'); }
   };
 
+  // eslint-disable-next-line max-len
+  type DeleteFinishTodosRes = Array<Response> | Array<IDeleteTodoRes> | Array<Promise<IDeleteTodoRes>>;
+
+  const deleteFinishTodos = async (todosData: Array<ITodo>) => {
+    const finishTodos = todosData.filter((todo) => todo.completed_at);
+    try {
+      const resArr: DeleteFinishTodosRes = await Promise.all(
+        finishTodos.map((todo) => fetch(`${process.env.REACT_APP_URL as string}todos/${todo.id}`, {
+          method: 'DELETE',
+          headers: { Authorization: Cookies.get('ReactTodos') || '' },
+        })),
+      );
+      const haveError = resArr.some((res) => res.status !== 200);
+      if (haveError) throw new Error();
+
+      toast.success('已刪除完成項目!');
+      getTodos();
+    } catch (error) { toast.error('發生錯誤，請稍後再嘗試!'); }
+  };
+
   return (
     <Wrap>
       <ButtonGroup>
@@ -263,6 +283,7 @@ const TodoList: React.FC<ITodosProps> = ({
           bgColor="transparent"
           border="none"
           transitionType="dark"
+          onClick={() => deleteFinishTodos(todos)}
         >
           清除已完成項目
         </Button>
