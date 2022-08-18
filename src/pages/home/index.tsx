@@ -6,6 +6,7 @@ import HeaderTitle from 'components/HeaderTitle';
 import { useAuth } from 'auth/ProvideAuth';
 import toast from 'react-hot-toast';
 import Cookies from 'js-cookie';
+import { useLoading } from 'components/ProvideLoading';
 import TodoInput from './components/TodoInput';
 import TodoList from './components/TodoList';
 import TodoEmpty from './components/TodoEmpty';
@@ -47,6 +48,7 @@ const BgDecorations = styled.div`
 
 const Home: React.FC = () => {
   const { logout, user } = useAuth();
+  const { setIsLoading } = useLoading();
   const [todos, setTodos] = useState<Array<ITodo>>([]);
 
   const [displayTodos, setDisplayTodos] = useState<Array<ITodo>>([]);
@@ -83,6 +85,7 @@ const Home: React.FC = () => {
   }), [displayStatus]);
 
   const getTodos = useCallback(async () => {
+    setIsLoading(true);
     try {
       let res: Response | IGetTodosRes = await fetch(`${process.env.REACT_APP_URL as string}todos`, {
         method: 'GET',
@@ -96,7 +99,8 @@ const Home: React.FC = () => {
       if (!todosRes) return;
       setTodos(todosRes);
     } catch (err) { toast.error('發生錯誤，無法取得資料!'); }
-  }, []);
+    setIsLoading(false);
+  }, [setIsLoading]);
 
   useEffect(() => {
     getTodos().catch(() => {});

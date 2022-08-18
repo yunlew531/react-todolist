@@ -4,12 +4,15 @@ import React, {
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
+import { useLoading } from 'components/ProvideLoading';
 
 const useAuthProvide = () => {
   const navigate = useNavigate();
+  const { setIsLoading } = useLoading();
   const [user, setUser] = useState<IUser>({});
 
   const login = async (account: IUser) => {
+    setIsLoading(true);
     const { email, password } = account;
     const body = { user: { email, password } };
 
@@ -36,6 +39,7 @@ const useAuthProvide = () => {
     } catch (err) {
       if (err instanceof Error) toast.error(err.message);
     }
+    setIsLoading(false);
   };
 
   const logout = () => {

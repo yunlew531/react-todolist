@@ -6,6 +6,7 @@ import InputGroup from 'components/InputGroup';
 import Button from 'components/Button';
 import useValidate from 'utils/useValidate';
 import toast from 'react-hot-toast';
+import { useLoading } from 'components/ProvideLoading';
 
 const Title = styled.h2`
   font-size: 24px;
@@ -27,13 +28,16 @@ interface IRegisterSectionProps {
 }
 
 const RegisterSection: React.FC<IRegisterSectionProps> = ({ setCurrentDisplay }) => {
+  const { setIsLoading } = useLoading();
   const {
     emailValidate, passwordValidate, passwordCheckValidate, nickNameValidate,
   } = useValidate();
   const {
     register, handleSubmit, formState: { errors }, getValues,
   } = useForm();
+
   const handleRegister: SubmitHandler<IUser> = async ({ email, password, nickname }) => {
+    setIsLoading(true);
     const body = { user: { email, password, nickname } };
     try {
       let res: Response | IRegisterAPIRes = await fetch(`${process.env.REACT_APP_URL as string}/users`, {
@@ -58,6 +62,7 @@ const RegisterSection: React.FC<IRegisterSectionProps> = ({ setCurrentDisplay })
         });
       }
     }
+    setIsLoading(false);
   };
   const handlePasswordCheck = (passwordCheck: string) => {
     const { password }: IUser = getValues();

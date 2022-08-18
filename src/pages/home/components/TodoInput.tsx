@@ -3,6 +3,7 @@ import styled from '@emotion/styled';
 import Cookie from 'js-cookie';
 import toast from 'react-hot-toast';
 import { FieldValues, SubmitHandler, useForm } from 'react-hook-form';
+import { useLoading } from 'components/ProvideLoading';
 
 const InputGroup = styled.div`
   position: relative;
@@ -40,10 +41,15 @@ interface ITodoInputProps {
 }
 
 const TodoInput: React.FC<ITodoInputProps> = ({ getTodos }) => {
-  const { handleSubmit, register, setValue } = useForm();
+  const { isLoading, setIsLoading } = useLoading();
+  const {
+    handleSubmit, register, setValue,
+  } = useForm();
 
   const addTodo: SubmitHandler<{ content?: string }> = async ({ content }) => {
     const body = { todo: { content } };
+
+    setIsLoading(true);
     try {
       let res: Response | IAddTodoRes = await fetch(`${process.env.REACT_APP_URL as string}todos`, {
         method: 'POST',
@@ -63,8 +69,12 @@ const TodoInput: React.FC<ITodoInputProps> = ({ getTodos }) => {
         duration: 5000,
       });
       setValue('content', '');
+      setIsLoading(false);
       getTodos();
-    } catch (err) { toast.error('發生錯誤!'); }
+    } catch (err) {
+      setIsLoading(false);
+      toast.error('發生錯誤!');
+    }
   };
 
   const onError = (errors: FieldValues) => {
@@ -75,7 +85,12 @@ const TodoInput: React.FC<ITodoInputProps> = ({ getTodos }) => {
   return (
     <form onSubmit={handleSubmit((formData): void => addTodo(formData), onError)}>
       <InputGroup>
-        <input type="text" placeholder="新增代辦事項" {...register('content', { required: '請填寫 Todo 內容' })} />
+        <input
+          type="text"
+          {...isLoading && { disabled: true }}
+          placeholder="新增代辦事項"
+          {...register('content', { required: '請填寫 Todo 內容' })}
+        />
         <AddTodoBtn type="submit">
           <span className="material-icons-outlined add-icon">add</span>
         </AddTodoBtn>

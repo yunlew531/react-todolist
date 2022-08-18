@@ -4,6 +4,7 @@ import Progress from 'pages/home/components/Progress';
 import Button from 'components/Button';
 import Cookies from 'js-cookie';
 import toast from 'react-hot-toast';
+import { useLoading } from 'components/ProvideLoading';
 
 const Wrap = styled.div`
   border-radius: 10px;
@@ -137,12 +138,14 @@ interface ITodosProps {
 const TodoList: React.FC<ITodosProps> = ({
   todos, setDisplayStatus, unfinishedTodoNum, progressBarStyle, getTodos, setTodos,
 }) => {
+  const { setIsLoading } = useLoading();
   const [currentEdit, setCurrentEdit] = useState({ id: '', content: '' });
 
   const toggleFinish = async (e: React.MouseEvent<HTMLLIElement>, id: string) => {
     if ((e.target as HTMLElement).tagName === 'INPUT') return;
     if (currentEdit.id === id) return;
 
+    setIsLoading(true);
     try {
       const res = await fetch(`${process.env.REACT_APP_URL as string}todos/${id}/toggle`, {
         method: 'PATCH',
@@ -151,8 +154,12 @@ const TodoList: React.FC<ITodosProps> = ({
       const { status } = res;
       if (status !== 200) throw new Error();
 
+      setIsLoading(false);
       getTodos();
-    } catch (err) { toast.error('發生錯誤，請稍後再修改!'); }
+    } catch (err) {
+      toast.error('發生錯誤，請稍後再修改!');
+      setIsLoading(false);
+    }
   };
 
   const editTodo = (e: React.MouseEvent<HTMLButtonElement>, { id, content }: ITodo) => {
@@ -166,6 +173,7 @@ const TodoList: React.FC<ITodosProps> = ({
     let { content } = currentEdit;
 
     const body = { todo: { content } };
+    setIsLoading(true);
     try {
       let res: Response | IUpdateTodoRes = await fetch(`${process.env.REACT_APP_URL as string}todos/${id}`, {
         method: 'PUT',
@@ -184,10 +192,13 @@ const TodoList: React.FC<ITodosProps> = ({
       setTodos((prev) => prev.map((todo) => (todo.id === id ? { ...todo, content } : todo)));
       setCurrentEdit({ id: '', content: '' });
     } catch (err) { toast.error('發生錯誤，請稍後再嘗試!'); }
+    setIsLoading(false);
   };
 
   const deleteTodo = async (e: React.MouseEvent<HTMLButtonElement>, { id, content }: ITodo) => {
     e.stopPropagation();
+
+    setIsLoading(true);
     try {
       let res: Response | IDeleteTodoRes = await fetch(`${process.env.REACT_APP_URL as string}todos/${id}`, {
         method: 'DELETE',
@@ -198,17 +209,24 @@ const TodoList: React.FC<ITodosProps> = ({
 
       res = await res.json() as IDeleteTodoRes;
       toast.success(`已刪除 ${content}`);
+      setIsLoading(false);
       getTodos();
-    } catch (err) { toast.error('發生錯誤，請稍後再嘗試!'); }
+    } catch (err) {
+      setIsLoading(false);
+      toast.error('發生錯誤，請稍後再嘗試!');
+    }
   };
 
-  // eslint-disable-next-line max-len
   type DeleteFinishTodosRes = Array<Response> | Array<IDeleteTodoRes>;
 
   const deleteFinishTodos = async (todosData: Array<ITodo>) => {
     const finishTodos = todosData.filter((todo) => todo.completed_at);
-    if (!finishTodos.length) return;
+    if (!finishTodos.length) {
+      toast.error('目前沒有已完成項目!');
+      return;
+    }
 
+    setIsLoading(true);
     try {
       const resArr: DeleteFinishTodosRes = await Promise.all(
         finishTodos.map((todo) => fetch(`${process.env.REACT_APP_URL as string}todos/${todo.id}`, {
@@ -220,8 +238,12 @@ const TodoList: React.FC<ITodosProps> = ({
       if (haveError) throw new Error();
 
       toast.success('已刪除完成項目!');
+      setIsLoading(false);
       getTodos();
-    } catch (error) { toast.error('發生錯誤，請稍後再嘗試!'); }
+    } catch (error) {
+      toast.error('發生錯誤，請稍後再嘗試!');
+      setIsLoading(false);
+    }
   };
 
   return (
