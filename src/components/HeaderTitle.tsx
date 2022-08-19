@@ -19,7 +19,7 @@ const Wrap = styled.div`
 
 const HeaderTitle: React.FC = () => (
   <Wrap>
-    <img src="/images/check.png" alt="check" />
+    <img src="./images/check.png" alt="check" />
     <h1>ONLINE TODO LIST</h1>
   </Wrap>
 );

@@ -43,8 +43,8 @@ const useAuthProvide = () => {
   };
 
   const logout = () => {
-    document.cookie = 'ReactTodos=;expires=Thu, 01 Jan 1970 00:00:00 UTC;';
-    document.cookie = 'ReactTodosNickName=;expires=Thu, 01 Jan 1970 00:00:00 UTC;';
+    Cookies.remove('ReactTodos');
+    Cookies.remove('ReactTodosNickName');
     setUser({});
     navigate('/login');
   };

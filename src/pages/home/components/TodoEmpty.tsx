@@ -13,7 +13,7 @@ const Wrap = styled.div`
 const TodoEmpty: React.FC = () => (
   <Wrap>
     <p className="todo-empty-text">目前尚無待辦事項</p>
-    <img src="/images/empty 1.png" alt="todo empty" />
+    <img src="./images/empty 1.png" alt="todo empty" />
   </Wrap>
 );
 

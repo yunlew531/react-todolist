@@ -40,7 +40,7 @@ const Login: React.FC = () => {
     <Wrap>
       <ImgContainer>
         <HeaderTitle />
-        <img src="/images/todo_img.png" alt="todo" />
+        <img src="./images/todo_img.png" alt="todo" />
       </ImgContainer>
       <FormContainer>
         { currentDisplay === 'login'
