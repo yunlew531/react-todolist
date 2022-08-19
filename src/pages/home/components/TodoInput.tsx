@@ -42,16 +42,14 @@ interface ITodoInputProps {
 
 const TodoInput: React.FC<ITodoInputProps> = ({ getTodos }) => {
   const { isLoading, setIsLoading } = useLoading();
-  const {
-    handleSubmit, register, setValue,
-  } = useForm();
+  const { handleSubmit, register, setValue } = useForm();
 
   const addTodo: SubmitHandler<{ content?: string }> = async ({ content }) => {
     const body = { todo: { content } };
 
     setIsLoading(true);
     try {
-      let res: Response | IAddTodoRes = await fetch(`${process.env.REACT_APP_URL as string}todos`, {
+      let res: Response | ITodo = await fetch(`${process.env.REACT_APP_URL as string}todos`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -63,7 +61,7 @@ const TodoInput: React.FC<ITodoInputProps> = ({ getTodos }) => {
       const { status } = res;
       if (status !== 201) throw new Error();
 
-      res = await res.json() as IAddTodoRes;
+      res = await res.json() as ITodo;
       const { content: resContent } = res;
       toast.success(`已新增: ${resContent}`, {
         duration: 5000,

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import styled from '@emotion/styled';
 import Progress from 'pages/home/components/Progress';
 import Button from 'components/Button';
@@ -141,7 +141,8 @@ const TodoList: React.FC<ITodosProps> = ({
   todos, setDisplayStatus, unfinishedTodoNum, progressBarStyle, getTodos, setTodos,
 }) => {
   const { setIsLoading } = useLoading();
-  const [currentEdit, setCurrentEdit] = useState({ id: '', content: '' });
+  const [currentEdit, setCurrentEdit] = useState({ id: '', content: '', key: 0 });
+  const editInputRefs = useRef<Array<HTMLInputElement>>([]);
 
   const toggleFinished = async (e: React.MouseEvent<HTMLLIElement>, id: string) => {
     if ((e.target as HTMLElement).tagName === 'INPUT') return;
@@ -164,20 +165,39 @@ const TodoList: React.FC<ITodosProps> = ({
     setIsLoading(false);
   };
 
-  const editTodo = (e: React.MouseEvent<HTMLButtonElement>, { id, content }: ITodo) => {
+  const editTodo = (
+    e: React.MouseEvent<HTMLButtonElement>,
+    { id, content }: ITodo,
+    key: number,
+  ) => {
     e.stopPropagation();
-    setCurrentEdit({ id, content });
+    setCurrentEdit({ id, content, key });
   };
 
+  useEffect(() => {
+    editInputRefs.current[currentEdit.key]?.focus();
+  }, [currentEdit]);
+
+  const cancelEdit = () => setCurrentEdit({ id: '', content: '', key: 0 });
+
   const submitEdit = async (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Escape') {
+      cancelEdit();
+      return;
+    }
     if (e.key !== 'Enter') return;
+    if (!currentEdit.content) {
+      toast.error('需要輸入點內容喔!');
+      return;
+    }
+
     const { id } = currentEdit;
     let { content } = currentEdit;
 
     const body = { todo: { content } };
     setIsLoading(true);
     try {
-      let res: Response | IUpdateTodoRes = await fetch(`${process.env.REACT_APP_URL as string}todos/${id}`, {
+      let res: Response | ITodo = await fetch(`${process.env.REACT_APP_URL as string}todos/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -189,10 +209,10 @@ const TodoList: React.FC<ITodosProps> = ({
       const { status } = res;
       if (status !== 200) throw new Error();
 
-      res = await res.json() as IUpdateTodoRes;
+      res = await res.json() as ITodo;
       ({ content } = res);
       setTodos((prev) => prev.map((todo) => (todo.id === id ? { ...todo, content } : todo)));
-      setCurrentEdit({ id: '', content: '' });
+      setCurrentEdit({ id: '', content: '', key: 0 });
     } catch (err) { toast.error('發生錯誤，請稍後再嘗試!'); }
     setIsLoading(false);
   };
@@ -202,14 +222,14 @@ const TodoList: React.FC<ITodosProps> = ({
 
     setIsLoading(true);
     try {
-      let res: Response | IDeleteTodoRes = await fetch(`${process.env.REACT_APP_URL as string}todos/${id}`, {
+      let res: Response | ITodo = await fetch(`${process.env.REACT_APP_URL as string}todos/${id}`, {
         method: 'DELETE',
         headers: { Authorization: Cookies.get('ReactTodos') || '' },
       });
       const { status } = res;
       if (status !== 200) throw new Error();
 
-      res = await res.json() as IDeleteTodoRes;
+      res = await res.json() as ITodo;
       toast.success(`已刪除 ${content}`);
       setIsLoading(false);
       getTodos();
@@ -219,7 +239,7 @@ const TodoList: React.FC<ITodosProps> = ({
     }
   };
 
-  type DeleteFinishTodosRes = Array<Response> | Array<IDeleteTodoRes>;
+  type DeleteFinishTodosRes = Array<Response> | Array<ITodo>;
 
   const deleteFinishTodos = async (todosData: Array<ITodo>) => {
     const finishTodos = todosData.filter((todo) => todo.completed_at);
@@ -257,7 +277,7 @@ const TodoList: React.FC<ITodosProps> = ({
       </ButtonGroup>
       <Progress progressBarStyle={progressBarStyle} />
       <ul>
-        {todos.map((todo) => (
+        {todos.map((todo, key) => (
           <TodoItem
             key={todo.id}
             className={todo.completed_at ? 'finished' : ''}
@@ -266,13 +286,14 @@ const TodoList: React.FC<ITodosProps> = ({
             onClick={(e) => toggleFinished(e, todo.id)}
           >
             <div className="todo-container">
-              <button type="button" className="todo-edit-btn" onClick={(e) => editTodo(e, todo)}>
+              <button type="button" className="todo-edit-btn" onClick={(e) => editTodo(e, todo, key)}>
                 <span className="material-icons-outlined">edit</span>
               </button>
               <span className="material-icons-outlined todo-checkbox-done">done</span>
               <span className="todo-checkbox" />
               <p className="todo-content">{todo.content}</p>
               <input
+                ref={(el: HTMLInputElement) => { editInputRefs.current[key] = el; }}
                 type="text"
                 className="edit-todo-input"
                 value={currentEdit.content}
