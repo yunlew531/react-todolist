@@ -186,13 +186,16 @@ const TodoList: React.FC<ITodosProps> = ({
       return;
     }
     if (e.key !== 'Enter') return;
-    if (!currentEdit.content) {
+
+    let { content } = currentEdit;
+    content = content.trim();
+
+    if (!content) {
       toast.error('需要輸入點內容喔!');
       return;
     }
 
     const { id } = currentEdit;
-    let { content } = currentEdit;
 
     const body = { todo: { content } };
     setIsLoading(true);

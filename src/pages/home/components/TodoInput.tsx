@@ -44,7 +44,13 @@ const TodoInput: React.FC<ITodoInputProps> = ({ getTodos }) => {
   const { isLoading, setIsLoading } = useLoading();
   const { handleSubmit, register, setValue } = useForm();
 
-  const addTodo: SubmitHandler<{ content?: string }> = async ({ content }) => {
+  const addTodo: SubmitHandler<{ content?: string }> = async ({ content: text }) => {
+    const content = text?.trim() || '';
+    if (!content) {
+      toast.error('需要輸入點內容喔!');
+      return;
+    }
+
     const body = { todo: { content } };
 
     setIsLoading(true);
@@ -87,7 +93,7 @@ const TodoInput: React.FC<ITodoInputProps> = ({ getTodos }) => {
           type="text"
           {...isLoading && { disabled: true }}
           placeholder="新增代辦事項"
-          {...register('content', { required: '請填寫 Todo 內容' })}
+          {...register('content', { required: '需要輸入點內容喔!' })}
         />
         <AddTodoBtn type="submit">
           <span className="material-icons-outlined add-icon">add</span>
